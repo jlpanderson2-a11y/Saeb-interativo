@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Protótipo SAEB 3D</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    #speech {
+      position: absolute;
+      top: 10px; left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.8);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-family: Arial, sans-serif;
+      font-size: 18px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="speech">Olá! Eu vou explicar sobre a prova do Saeb!</div>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script>
+    // --- CENA ---
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // --- CHÃO ---
+    const floorGeometry = new THREE.PlaneGeometry(20, 20);
+    const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x55aa55 });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI / 2;
+    scene.add(floor);
+
+    // --- BONEQUINHO (cubo por enquanto) ---
+    const charGeometry = new THREE.BoxGeometry(1, 2, 1);
+    const charMaterial = new THREE.MeshBasicMaterial({ color: 0x0077ff });
+    const character = new THREE.Mesh(charGeometry, charMaterial);
+    character.position.y = 1;
+    scene.add(character);
+
+    camera.position.set(0, 5, 10);
+    camera.lookAt(0, 0, 0);
+
+    // --- MOVIMENTO ---
+    let direction = 1;
+    function animate() {
+      requestAnimationFrame(animate);
+      character.position.x += 0.02 * direction;
+      if (character.position.x > 5 || character.position.x < -5) direction *= -1;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // --- FALA ---
+    const speechDiv = document.getElementById("speech");
+    const lines = [
+      "Olá! Eu vou explicar sobre a prova do Saeb!",
+      "A prova vai acontecer em breve, fique atento.",
+      "Ela é muito importante para avaliar a educação no Brasil.",
+      "Prepare-se bem e dê o seu melhor!"
+    ];
+    let index = 0;
+
+    function speak(text) {
+      speechDiv.textContent = text;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "pt-BR";
+      speechSynthesis.speak(utterance);
+    }
+
+    function nextLine() {
+      if (index < lines.length) {
+        speak(lines[index]);
+        index++;
+        setTimeout(nextLine, 6000);
+      }
+    }
+    nextLine();
+  </script>
+</body>
+</html>
